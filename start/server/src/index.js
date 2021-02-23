@@ -1,8 +1,27 @@
 const { ApolloServer } = require('apollo-server');
+require('dotenv').config();
 const typeDefs = require('./schema');
+const { createStore } = require('./utils');
+const resolvers = require('./resolvers')
 
-const server = new ApolloServer({typeDefs});
+const LaunchAPI = require('./datasources/launch');
+const UserAPI = require('./datasources/user');
 
-server.listen().then(()=> {
-  console.log(`Server is running port 4000`)
-})
+const store = createStore();
+
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  dataSources: () => ({
+    launchAPI: new LaunchAPI(),
+    userAPI: new UserAPI({ store })
+  })
+});
+
+server.listen().then(() => {
+  console.log(`
+    Server is running!
+    Listening on port 4000
+    Explore at https://studio.apollographql.com/dev
+  `);
+});
