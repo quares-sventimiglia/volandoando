@@ -26,6 +26,7 @@ export const GET_LAUNCHES = gql`
         ...LaunchTile
       }
     }
+    ${LAUNCH_TILE_DATA}
 `;
 
 interface LaunchesProps extends RouteComponentProps {}
@@ -44,8 +45,7 @@ const Launches: React.FC<LaunchesProps> = () => {
     <Fragment>
       <Header />
       {data.launches &&
-        data.launches.launches &&
-        data.launches.launches.map((launch: any) => (
+        data.launches.map((launch: any) => (
           <LaunchTile key={launch.id} launch={launch} />
         ))}
     </Fragment>

@@ -6,6 +6,16 @@ module.exports = {
       dataSources.launchAPI.getLaunchById({ launchId: id }),
     me: (_, __, { dataSources }) => dataSources.userAPI.findOrCreateUser(),
   },
+  Mutation: {
+    login: async (_, { email }, { dataSources }) => {
+      const user = await dataSources.userAPI.findOrCreateUser({ email });
+      console.log(user)
+      if (user) {
+        user.token = Buffer.from(email).toString("base64");
+        return user;
+      }
+    },
+  },
   Mission: {
     missionPatch: (mission, { size } = { size: "SMALL" }) => {
       return size === "LARGE"

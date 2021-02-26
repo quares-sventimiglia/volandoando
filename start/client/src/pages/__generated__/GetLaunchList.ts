@@ -27,6 +27,7 @@ export interface GetLaunchList_launches_launches {
 }
 
 export interface GetLaunchList_launches {
+  map(arg0: (launch: any) => JSX.Element): import("react").ReactNode;
   __typename: "LaunchConnection";
   cursor: string;
   hasMore: boolean;
