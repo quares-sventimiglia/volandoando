@@ -13,7 +13,6 @@ export function getBackgroundImage(id: string) {
 }
 
 export default ({ launch }: any) => {
-  console.log("LAAAUNCH", launch)
   const { id, mission, rocket } = launch;
   return (
     <StyledLink
@@ -22,8 +21,8 @@ export default ({ launch }: any) => {
         backgroundImage: getBackgroundImage(id),
       }}
     >
-      <h3>{mission.name}</h3>
-      <h5>{rocket.name}</h5>
+      <h2>{mission.name}</h2>
+      <h3>{rocket.name}</h3>
     </StyledLink>
   );
 };
