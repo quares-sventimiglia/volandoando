@@ -33,6 +33,14 @@ export const GET_LAUNCHES = gql`
   ${LAUNCH_TILE_DATA}
 `;
 
+export const GET_USER_INFO = gql`
+  query GetUserInfo($id: ID!) {
+    meById(id: $id) {
+      name
+    }
+  }
+`;
+
 interface LaunchesProps extends RouteComponentProps {}
 
 const Launches: React.FC<LaunchesProps> = () => {
@@ -40,6 +48,16 @@ const Launches: React.FC<LaunchesProps> = () => {
     GetLaunchListTypes.GetLaunchList,
     GetLaunchListTypes.GetLaunchListVariables
   >(GET_LAUNCHES);
+
+  const userId = localStorage.getItem("id");
+  console.log("TOKEN", userId);
+
+  const { data: userData } = useQuery(GET_USER_INFO, {
+    variables: { id: userId },
+  });
+
+  console.log("userData", userData);
+
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const fetchMoreLaunches = async () => {

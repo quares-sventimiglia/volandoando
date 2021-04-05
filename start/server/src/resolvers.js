@@ -1,4 +1,20 @@
 const { paginateResults } = require("./utils");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+
+const SECRET_KEY = "HOLA";
+
+function generateToken(user) {
+  return jwt.sign(
+    {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    },
+    SECRET_KEY,
+    { expiresIn: "1h" }
+  );
+}
 
 module.exports = {
   Query: {
@@ -21,15 +37,71 @@ module.exports = {
     },
     launch: (_, { id }, { dataSources }) =>
       dataSources.launchAPI.getLaunchById({ launchId: id }),
-    me: (_, __, { dataSources }) => dataSources.userAPI.findOrCreateUser(),
+    me: (_, { email }, { dataSources }) => {
+      dataSources.userAPI.findUser(email);
+    },
+    meById: async (_, { id }, { dataSources }) => {
+      const user = await dataSources.userAPI.findUserById(id);
+      return user
+    },
   },
   Mutation: {
-    login: async (_, { email }, { dataSources }) => {
-      const user = await dataSources.userAPI.findOrCreateUser({ email });
-      if (user) {
-        user.token = Buffer.from(email).toString("base64");
-        return user;
+    login: async (_, { email, password }, { dataSources }) => {
+      const user = await dataSources.userAPI.findUser(email);
+
+      if (!user) {
+        throw new Error("Email doesn't exist");
       }
+
+      const passwordMatch = await bcrypt.compare(
+        password,
+        user.dataValues.password
+      );
+
+      if (!passwordMatch) {
+        throw new Error("Password incorrect");
+      }
+
+      const token = generateToken(user);
+
+      const finalUser = {
+        ...user.dataValues,
+        token,
+      };
+
+      return finalUser;
+    },
+    register: async (
+      _,
+      { registerInput: { name, email, password } },
+      { dataSources }
+    ) => {
+      const didEmailExist = await dataSources.userAPI.findUser(email);
+
+      if (didEmailExist) {
+        throw new Error("The email was taken");
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 12);
+
+      const token = generateToken({
+        email,
+        name,
+        password: hashedPassword,
+      });
+
+      console.log("token", token);
+
+      const newUser = await dataSources.userAPI.createUser({
+        email,
+        name,
+        token,
+        password: hashedPassword,
+      });
+
+      const completedUserCreated = { ...newUser };
+
+      return completedUserCreated;
     },
     bookTrips: async (_, { launchIds }, { dataSources }) => {
       const results = await dataSources.userAPI.bookTrips({ launchIds });

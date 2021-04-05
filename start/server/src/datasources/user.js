@@ -1,5 +1,5 @@
-const { DataSource } = require('apollo-datasource');
-const isEmail = require('isemail');
+const { DataSource } = require("apollo-datasource");
+const isEmail = require("isemail");
 
 class UserAPI extends DataSource {
   constructor({ store }) {
@@ -7,21 +7,10 @@ class UserAPI extends DataSource {
     this.store = store;
   }
 
-  /**
-   * This is a function that gets called by ApolloServer when being setup.
-   * This function gets called with the datasource config including things
-   * like caches and context. We'll assign this.context to the request context
-   * here, so we can know about the user making requests
-   */
   initialize(config) {
     this.context = config.context;
   }
 
-  /**
-   * User can be called with an argument that includes email, but it doesn't
-   * have to be. If the user is already on the context, it will use that user
-   * instead
-   */
   async findOrCreateUser({ email: emailArg } = {}) {
     const email =
       this.context && this.context.user ? this.context.user.email : emailArg;
@@ -31,14 +20,29 @@ class UserAPI extends DataSource {
     return users && users[0] ? users[0] : null;
   }
 
+  async findUser( email ) {
+    const user = await this.store.users.findOne({ where: {email} });
+    return user
+  }
+
+  async findUserById( id ) {
+    console.log("TOKEEEN", id)
+    const user = await this.store.users.findOne({ where: {id} });
+    console.log("USEER", user)
+    return user ? user.dataValues : null
+  }
+
+  async createUser({ email, password, name, token }) {
+    const info = await this.store.users.create({ name, email, password, token });
+    return info.dataValues;
+  }
+
   async bookTrips({ launchIds }) {
     const userId = this.context.user.id;
     if (!userId) return;
 
     let results = [];
 
-    // for each launch id, try to book the trip and add it to the results array
-    // if successful
     for (const launchId of launchIds) {
       const res = await this.bookTrip({ launchId });
       if (res) results.push(res);
@@ -66,7 +70,7 @@ class UserAPI extends DataSource {
       where: { userId },
     });
     return found && found.length
-      ? found.map(l => l.dataValues.launchId).filter(l => !!l)
+      ? found.map((l) => l.dataValues.launchId).filter((l) => !!l)
       : [];
   }
 

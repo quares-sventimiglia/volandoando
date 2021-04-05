@@ -1,38 +1,32 @@
-import React from 'react';
-import { gql, useMutation } from '@apollo/client';
+import React from "react";
+import { gql, useMutation } from "@apollo/client";
 
-import { LoginForm, Loading } from '../components';
-import * as LoginTypes from './__generated__/login';
-import { isLoggedInVar } from '../cache'
+import { LoginForm, Loading } from "../components";
+import * as LoginTypes from "./__generated__/login";
+import { isLoggedInVar } from "../cache";
 
 export const LOGIN_USER = gql`
-  mutation Login($email: String!) {
-    login(email: $email) {
+  mutation Login($email: String!, $password: String) {
+    login(email: $email, password: $password) {
       id
       token
     }
   }
 `;
 
-export default function Login() {
-  const [login, { loading, error }] = useMutation<
-  LoginTypes.Login,
-  LoginTypes.LoginVariables
->(
-  LOGIN_USER,
-  {
+const Login :React.FC<any> = () => {
+  const [login, { loading, error }] = useMutation(LOGIN_USER, {
     onCompleted({ login }) {
-      if (login) {
-        localStorage.setItem('token', login.token as string);
-        localStorage.setItem('userId', login.id as string);
-        isLoggedInVar(true)
-      }
-    }
-  }
-);
+      console.log("LOGIIIIIIIIIIIN", login)
+      localStorage.setItem('id', login.id);
+      isLoggedInVar(true)
+    },
+  });
 
   if (loading) return <Loading />;
   if (error) return <p>An error occurred</p>;
 
   return <LoginForm login={login} />;
 }
+
+export default Login;

@@ -9,9 +9,11 @@ import React from "react";
 import ReactDOM from "react-dom";
 import Pages from "./pages";
 import InjectStyles from "./styles";
+import { Router } from "@reach/router";
 
 import { cache } from "./cache";
 import Login from "./pages/login";
+import Registration from "./pages/registation";
 
 export const typeDefs = gql`
   extend type Query {
@@ -28,14 +30,22 @@ const IS_LOGGED_IN = gql`
 
 const IsLoggedIn = () => {
   const { data } = useQuery(IS_LOGGED_IN);
-  return data.isLoggedIn ? <Pages /> : <Login />;
+  console.log("DATAA", data)
+  return data.isLoggedIn ? (
+    <Pages />
+  ) : (
+    <Router primary={false}>
+      <Login path="/"/>
+      <Registration path="/registration" />
+    </Router>
+  );
 };
 
 const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
   cache,
   uri: "http://localhost:4000/graphql",
   headers: {
-    authorization: localStorage.getItem("token") || "",
+    authorization: localStorage.getItem("id") || "",
   },
   typeDefs,
 });

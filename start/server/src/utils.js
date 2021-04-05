@@ -48,8 +48,10 @@ module.exports.createStore = () => {
     },
     createdAt: SQL.DATE,
     updatedAt: SQL.DATE,
+    name: SQL.STRING,
     email: SQL.STRING,
     token: SQL.STRING,
+    password: SQL.STRING,
   });
 
   const trips = db.define("trip", {
