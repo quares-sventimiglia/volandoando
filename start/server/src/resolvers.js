@@ -142,7 +142,7 @@ module.exports = {
       }
     },
     bookTrips: async (_, { launchIds }, { dataSources, userToken }) => {
-      console.log("BOOKSSSS", userToken)
+
       const results = await dataSources.userAPI.bookTrips({ launchIds }, userToken);
       const launches = await dataSources.launchAPI.getLaunchesByIds({
         launchIds,
