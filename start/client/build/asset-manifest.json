@@ -1,27 +1,27 @@
 {
   "files": {
-    "main.js": "/volandoando/static/js/main.7d826609.chunk.js",
-    "main.js.map": "/volandoando/static/js/main.7d826609.chunk.js.map",
+    "main.js": "/volandoando/static/js/main.29c3420e.chunk.js",
+    "main.js.map": "/volandoando/static/js/main.29c3420e.chunk.js.map",
     "runtime-main.js": "/volandoando/static/js/runtime-main.09becbc1.js",
     "runtime-main.js.map": "/volandoando/static/js/runtime-main.09becbc1.js.map",
     "static/css/2.daf842d0.chunk.css": "/volandoando/static/css/2.daf842d0.chunk.css",
     "static/js/2.0c9c7247.chunk.js": "/volandoando/static/js/2.0c9c7247.chunk.js",
     "static/js/2.0c9c7247.chunk.js.map": "/volandoando/static/js/2.0c9c7247.chunk.js.map",
     "index.html": "/volandoando/index.html",
-    "precache-manifest.d5b145cb47a8195fb770b300cec1e338.js": "/volandoando/precache-manifest.d5b145cb47a8195fb770b300cec1e338.js",
+    "precache-manifest.c1106f6f77edc276af385c960190ec30.js": "/volandoando/precache-manifest.c1106f6f77edc276af385c960190ec30.js",
     "service-worker.js": "/volandoando/service-worker.js",
     "static/css/2.daf842d0.chunk.css.map": "/volandoando/static/css/2.daf842d0.chunk.css.map",
     "static/js/2.0c9c7247.chunk.js.LICENSE.txt": "/volandoando/static/js/2.0c9c7247.chunk.js.LICENSE.txt",
     "static/media/semantic.min.css": "/volandoando/static/media/outline-icons.ef60a4f6.woff",
-    "static/media/cart.07d5ba4a.svg": "/volandoando/static/media/cart.07d5ba4a.svg",
+    "static/media/cart.0a4ee70b.svg": "/volandoando/static/media/cart.0a4ee70b.svg",
     "static/media/dog-1.png": "/volandoando/static/media/dog-1.f25b4cba.png",
     "static/media/dog-2.png": "/volandoando/static/media/dog-2.ab7a533b.png",
     "static/media/dog-3.png": "/volandoando/static/media/dog-3.b6280374.png",
-    "static/media/exit.98f2a8b1.svg": "/volandoando/static/media/exit.98f2a8b1.svg",
+    "static/media/exit.5bb388b5.svg": "/volandoando/static/media/exit.5bb388b5.svg",
     "static/media/galaxy.jpg": "/volandoando/static/media/galaxy.0b1c6775.jpg",
-    "static/media/home.3192f86c.svg": "/volandoando/static/media/home.3192f86c.svg",
+    "static/media/home.a8474d8e.svg": "/volandoando/static/media/home.a8474d8e.svg",
     "static/media/iss.jpg": "/volandoando/static/media/iss.48932214.jpg",
-    "static/media/logo.0c7bf061.svg": "/volandoando/static/media/logo.0c7bf061.svg",
+    "static/media/logo.3e5f8e36.svg": "/volandoando/static/media/logo.3e5f8e36.svg",
     "static/media/moon.jpg": "/volandoando/static/media/moon.493bbb75.jpg",
     "static/media/space.jpg": "/volandoando/static/media/space.7dfc7923.jpg"
   },
@@ -29,6 +29,6 @@
     "static/js/runtime-main.09becbc1.js",
     "static/css/2.daf842d0.chunk.css",
     "static/js/2.0c9c7247.chunk.js",
-    "static/js/main.7d826609.chunk.js"
+    "static/js/main.29c3420e.chunk.js"
   ]
 }
