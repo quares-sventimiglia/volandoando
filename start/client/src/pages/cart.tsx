@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { gql, useQuery } from '@apollo/client';
 
 import { Footer, Header, Loading } from '../components';
@@ -22,12 +22,12 @@ const Cart: React.FC<CartProps> = () => {
 
   if (loading) return <Loading />;
   if (error) return <p>ERROR: {error.message}</p>;
-    console.log("DATAAAAAAAAAAAAAA", data)
+
   return (
     <Container>
       <Header/>
       {data?.cartItems.length === 0 ? (
-        <p data-testid="empty-message">No items in your cart</p>
+        <h3 data-testid="empty-message">No items in your cart</h3>
       ) : (
         <Container>
           {data?.cartItems.map((launchId: any) => (

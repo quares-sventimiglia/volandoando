@@ -5,6 +5,7 @@ import Button from '../components/button';
 import { cartItemsVar } from '../cache';
 import * as GetCartItemsTypes from '../pages/__generated__/GetCartItems';
 import * as BookTripsTypes from './__generated__/BookTrips';
+import { Loading } from '../components';
 
 export const BOOK_TRIPS = gql`
   mutation BookTrips($launchIds: [ID]!) {
@@ -22,7 +23,7 @@ export const BOOK_TRIPS = gql`
 interface BookTripsProps extends GetCartItemsTypes.GetCartItems {}
 
 const BookTrips: React.FC<BookTripsProps> = ({ cartItems }) => {
-  const [bookTrips, { data }] = useMutation<
+  const [bookTrips, { data, loading }] = useMutation<
     BookTripsTypes.BookTrips,
     BookTripsTypes.BookTripsVariables
   >
@@ -32,6 +33,8 @@ const BookTrips: React.FC<BookTripsProps> = ({ cartItems }) => {
       variables: { launchIds: cartItems },
     }
   );
+
+  if(loading) return <Loading />
 
   return data && data.bookTrips && !data.bookTrips.success
     ? <p data-testid="message">{data.bookTrips.message}</p>
