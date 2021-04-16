@@ -5,20 +5,31 @@ const typeDefs = gql`
     launches(pageSize: Int, after: String): LaunchConnection!
     launch(id: ID!): Launch
     me: User
-    meById(id: ID!): User
   }
 
   type LaunchConnection {
     cursor: String!
     hasMore: Boolean!
     launches: [Launch]!
+    user: User
+  }
+
+  type Response {
+    success: Boolean!
+    token: String
+    errors: [Error]
+  }
+
+  type Error {
+    path: String!
+    message: String!
   }
 
   type Mutation {
     bookTrips(launchIds: [ID]!): TripUpdateResponse!
     cancelTrip(launchId: ID!): TripUpdateResponse!
-    login(email: String!, password: String): User
-    register(registerInput: RegisterInput): User!
+    login(email: String!, password: String!): Response!
+    createUser(email: String!, password: String!, name: String!): Response!
   }
 
   input RegisterInput {

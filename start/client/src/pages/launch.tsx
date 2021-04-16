@@ -1,10 +1,11 @@
-import React, { Fragment } from "react";
+import React from "react";
 import { gql, useQuery } from "@apollo/client";
 
 import { LAUNCH_TILE_DATA } from "./launches";
-import { Loading, Header, LaunchDetail } from "../components";
+import { Loading, Header, LaunchDetail, Footer } from "../components";
 import { ActionButton } from "../containers";
 import { RouteComponentProps } from "@reach/router";
+import styled from 'react-emotion'
 
 import * as LaunchDetailsTypes from "./__generated__/LaunchDetails";
 
@@ -36,7 +37,7 @@ const Launch: React.FC<LaunchProps> = ({ launchId }) => {
   if (!data) return <p>Not found</p>;
 
   return (
-    <Fragment>
+    <Container>
       <Header
         image={
           data.launch && data.launch.mission && data.launch.mission.missionPatch
@@ -46,8 +47,18 @@ const Launch: React.FC<LaunchProps> = ({ launchId }) => {
       </Header>
       <LaunchDetail {...data.launch} />
       <ActionButton {...data.launch} />
-    </Fragment>
+      <Footer />
+
+    </Container>
   );
 };
 
 export default Launch;
+
+const Container = styled(`div`)({
+  width: '50%',
+  height: '100vh',
+  margin: 'auto',
+  display: 'flex',
+  flexDirection: 'column'
+})

@@ -1,74 +1,103 @@
-import React, { Component } from "react";
-import styled, { css } from "react-emotion";
+import React, { useState } from "react";
+import styled from "react-emotion";
 
-import Button from "./button";
+import { Button, Message } from "semantic-ui-react";
 import space from "../assets/images/space.jpg";
 import { colors, unit } from "../styles";
 import MenuItem from "./menu-item";
+import { navigate } from "@reach/router"
 
-interface LoginFormProps {
-  login: (a: { variables: any }) => void;
-}
+const LoginForm = ({ login, loading, client }: any) => {
+  const [values, setValues] = useState({
+    email: "",
+    password: "",
+  });
 
-interface LoginFormState {
-  email: string;
-  password: string;
-}
+  const [errors, setErrors] = useState<any>([]);
+  // const [success, setSuccess] = useState<boolean>(false)
 
-export default class LoginForm extends Component<
-  LoginFormProps,
-  LoginFormState
-> {
-  state = { email: "", password: "" };
-
-  onChangeEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const email = (event.target as HTMLInputElement).value;
-    this.setState((s) => ({ email }));
+  const hasInputValues = (): boolean => {
+    return Boolean(values.email && values.password);
   };
 
-  onChangePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const password = (event.target as HTMLInputElement).value;
-    this.setState((s) => ({ password }));
+  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setValues({ ...values, [event.target.name]: event.target.value });
   };
 
-  onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    this.props.login({
-      variables: { email: this.state.email, password: this.state.password },
-    });
+  const parsedErrorsToShow = (
+    errors: [{ path: string; message: string }]
+  ): any => {
+    return errors.map((error) => `${error.path}: ${error.message}`);
   };
 
-  render() {
-    return (
-      <Container>
-        <Heading>VolandoAndo</Heading>
-        <StyledForm onSubmit={(e) => this.onSubmit(e)}>
-          <StyledInput
-            required
-            type="email"
-            name="email"
-            placeholder="Email"
-            data-testid="login-input"
-            onChange={(e) => this.onChangeEmail(e)}
+  const onSubmit = async (event: { preventDefault: () => void }) => {
+    event.preventDefault();
+    try {
+      const { data } = await login({
+        variables: {
+          email: values.email,
+          password: values.password,
+        },
+      });
+      const { errors, success, token } = data.login;
+      setErrors(errors);
+      if (success) {
+        localStorage.setItem("x-token", token)
+        await navigate('/')
+      }
+    } catch (e) {
+      console.log("ERRRROOR", e);
+    }
+  };
+
+  return (
+    <Container>
+      <Heading>VolandoAndo</Heading>
+      <StyledForm onSubmit={onSubmit}>
+        <StyledInput
+          required
+          type="email"
+          name="email"
+          placeholder="Email"
+          data-testid="login-input"
+          onChange={onChange}
+        />
+        <StyledInput
+          required
+          type="password"
+          name="password"
+          placeholder="Password"
+          data-testid="login-input"
+          onChange={onChange}
+        />
+        {errors.length ? (
+          <Message
+            error
+            header="There was some errors with your login"
+            list={parsedErrorsToShow(errors)}
           />
-          <StyledInput
-            required
-            type="password"
-            name="password"
-            placeholder="Password"
-            data-testid="login-input"
-            onChange={(e) => this.onChangePassword(e)}
-          />
-          <Button type="submit">Log in</Button>
-          <MenuItem to="/registration">
-            <StyledRegistration>
-              If you don't have an account, sign up.
-            </StyledRegistration>
-          </MenuItem>
-        </StyledForm>
-      </Container>
-    );
-  }
-}
+        ) : null}
+        <Button
+          fluid
+          color="purple"
+          size="big"
+          type="submit"
+          disabled={!hasInputValues()}
+          loading={loading}
+        >
+          Log in
+        </Button>
+        <MenuItem to="/registration">
+          <StyledRegistration>
+            If you don't have an account, sign up.
+          </StyledRegistration>
+        </MenuItem>
+      </StyledForm>
+    </Container>
+  );
+};
+
+export default LoginForm;
 
 /**
  * STYLED COMPONENTS USED IN THIS FILE ARE BELOW HERE
@@ -85,7 +114,7 @@ const Container = styled("div")({
   backgroundImage: `url(${space})`,
   backgroundSize: "cover",
   backgroundPosition: "center",
-  height: "100vh"
+  height: "100vh",
 });
 
 const Heading = styled("h1")({
@@ -118,11 +147,11 @@ const StyledInput = styled("input")({
 const StyledRegistration = styled("p")({
   width: "100%",
   textAlign: "center",
-  margin: "20px 0 0 0",
-  fontSize: "14px",
+  fontSize: "13px",
   letterSpacing: "2px",
   color: colors.accent,
+  marginTop: "2em !important",
   ":hover": {
-    textDecoration: "underline"
-  }
-})
+    textDecoration: "underline",
+  },
+});

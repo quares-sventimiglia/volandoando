@@ -1,8 +1,10 @@
 import * as GetLaunchListTypes from "./__generated__/GetLaunchList";
-import React, { Fragment, useState } from "react";
-import { RouteComponentProps } from "@reach/router";
+import React, { useState } from "react";
+import { RouteComponentProps, Link } from "@reach/router";
 import { gql, useQuery } from "@apollo/client";
-import { LaunchTile, Header, Loading, Button } from "../components";
+import { LaunchTile, Header, Loading, Footer } from "../components";
+import { Button } from "semantic-ui-react";
+import styled from 'react-emotion';
 
 export const LAUNCH_TILE_DATA = gql`
   fragment LaunchTile on Launch {
@@ -34,8 +36,9 @@ export const GET_LAUNCHES = gql`
 `;
 
 export const GET_USER_INFO = gql`
-  query GetUserInfo($id: ID!) {
-    meById(id: $id) {
+  query GetUserInfo {
+    me {
+      email
       name
     }
   }
@@ -48,15 +51,6 @@ const Launches: React.FC<LaunchesProps> = () => {
     GetLaunchListTypes.GetLaunchList,
     GetLaunchListTypes.GetLaunchListVariables
   >(GET_LAUNCHES);
-
-  const userId = localStorage.getItem("id");
-  console.log("TOKEN", userId);
-
-  const { data: userData } = useQuery(GET_USER_INFO, {
-    variables: { id: userId },
-  });
-
-  console.log("userData", userData);
 
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
@@ -71,12 +65,19 @@ const Launches: React.FC<LaunchesProps> = () => {
   };
 
   if (loading) return <Loading />;
-  if (error) return <p>ERROR</p>;
+  if (error)
+    return (
+      <Link to="/login">
+        <Button fluid color="purple" size="big">
+          You are not logged in, please click me and login.
+        </Button>
+      </Link>
+    );
   if (!data) return <p>Not Fount</p>;
 
   return (
-    <Fragment>
-      <Header />
+    <Container>
+      <Header/>
       {data.launches &&
         data.launches.launches &&
         data.launches.launches.map((launch: any) => (
@@ -87,10 +88,22 @@ const Launches: React.FC<LaunchesProps> = () => {
         (isLoadingMore ? (
           <Loading />
         ) : (
-          <Button onClick={fetchMoreLaunches}>Load More</Button>
+          <Button color="purple" size="big" onClick={fetchMoreLaunches}>
+            Load More
+          </Button>
         ))}
-    </Fragment>
+      <Footer />
+    </Container>
   );
 };
 
 export default Launches;
+
+const Container = styled('div')({
+  display: 'flex',
+  flexDirection: 'column',
+  flexGrow: 1,
+  width: '50%',
+  margin: '0 auto',
+  height: '100vh'
+});

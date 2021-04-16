@@ -3,17 +3,16 @@ import {
   ApolloProvider,
   gql,
   NormalizedCacheObject,
-  useQuery,
+  ApolloLink,
+  HttpLink,
+  concat
 } from "@apollo/client";
 import React from "react";
 import ReactDOM from "react-dom";
 import Pages from "./pages";
-import InjectStyles from "./styles";
-import { Router } from "@reach/router";
+import 'semantic-ui-css/semantic.min.css'
 
 import { cache } from "./cache";
-import Login from "./pages/login";
-import Registration from "./pages/registation";
 
 export const typeDefs = gql`
   extend type Query {
@@ -22,37 +21,27 @@ export const typeDefs = gql`
   }
 `;
 
-const IS_LOGGED_IN = gql`
-  query IsUserLoggedIn {
-    isLoggedIn @client
-  }
-`;
+const httpLink = new HttpLink({ uri: 'http://localhost:4000/graphql' });
 
-const IsLoggedIn = () => {
-  const { data } = useQuery(IS_LOGGED_IN);
-  console.log("DATAA", data)
-  return data.isLoggedIn ? (
-    <Pages />
-  ) : (
-    <Router primary={false}>
-      <Login path="/"/>
-      <Registration path="/registration" />
-    </Router>
-  );
-};
+const authMiddleware = new ApolloLink((operation, forward) => {
+  operation.setContext({
+    headers: {
+      authorization: localStorage.getItem('x-token') || null,
+    }
+  });
+
+  return forward(operation);
+})
+
 
 const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
+  link: concat(authMiddleware, httpLink),
   cache,
-  uri: "http://localhost:4000/graphql",
-  headers: {
-    authorization: localStorage.getItem("id") || "",
-  },
   typeDefs,
 });
-
 ReactDOM.render(
   <ApolloProvider client={client}>
-    <IsLoggedIn />
+    <Pages/>
   </ApolloProvider>,
   document.getElementById("root")
 );

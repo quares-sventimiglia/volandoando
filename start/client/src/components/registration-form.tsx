@@ -1,43 +1,52 @@
 import React, { useState } from "react";
-import styled, { css } from "react-emotion";
-
-import Button from "./button";
+import styled from "react-emotion";
+import { Button, Message } from "semantic-ui-react";
 import galaxy from "../assets/images/galaxy.jpg";
+import RegistrationCompleted from "../components/registration-completed";
+
 
 import { colors, unit } from "../styles";
 
-interface LoginFormState {
-  email: string;
-  password: string;
-}
-
-const RegistrationForm = ({register} : any, loading: any) => {
-
+const RegistrationForm = ({ createUser, loading }: any) => {
   const [values, setValues] = useState({
-    name: '',
-    email: '',
-    password: '',
-  })
-
-  const [error, setError] = useState("")
+    name: "",
+    email: "",
+    password: "",
+  });
+  const [success, setSuccess] = useState(false);
+  const [errors, setErrors] = useState<any>([]);
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValues({...values, [event.target.name]: event.target.value})
+    setValues({ ...values, [event.target.name]: event.target.value });
+  };
+
+  const hasInputValues = (): boolean => {
+    return Boolean(values.name && values.email && values.password);
+  };
+
+  const parsedErrorsToShow = (errors: [{path: string, message: string}]): any => {
+    return errors.map(error => `${error.path}: ${error.message}`)
   }
 
-  const onSubmit = async (event: { preventDefault: () => void; }) => {
+  const onSubmit = async (event: { preventDefault: () => void }) => {
     event.preventDefault();
     try {
-      const {data} = await register({
-        variables: { email: values.email, password: values.password, name: values.name }
-      })
-      console.log("DATA", loading)
+      const { data } = await createUser({
+        variables: {
+          email: values.email,
+          password: values.password,
+          name: values.name,
+        },
+      });
+      const { errors, success } = data.createUser;
+      setSuccess(success);
+      setErrors(errors);
     } catch (e) {
-      console.log("ERRRROOR", e)
-      setError("The email was taken")
+      console.log("ERRRROOR", e);
     }
-    
-  }
+  };
+  
+  if (success) return <RegistrationCompleted/>
   return (
     <Container>
       <Heading>Registration</Heading>
@@ -66,7 +75,23 @@ const RegistrationForm = ({register} : any, loading: any) => {
           data-testid="login-input"
           onChange={onChange}
         />
-        <Button type="submit">Sign Up</Button>
+        {errors.length ? (
+          <Message
+            error
+            header="There was some errors with your registration"
+            list={parsedErrorsToShow(errors)}
+          />
+        ) : null}
+        <Button
+          disabled={!hasInputValues()}
+          fluid
+          type="submit"
+          color="purple"
+          size="big"
+          loading={loading}
+        >
+          Sign Up
+        </Button>
       </StyledForm>
     </Container>
   );
@@ -89,7 +114,7 @@ const Container = styled("div")({
   backgroundImage: `url(${galaxy})`,
   backgroundSize: "cover",
   backgroundPosition: "center",
-  height: "100vh"
+  height: "100vh",
 });
 
 const Heading = styled("h1")({

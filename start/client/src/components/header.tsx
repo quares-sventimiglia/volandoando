@@ -6,6 +6,17 @@ import { unit, colors } from '../styles';
 import dog1 from '../assets/images/dog-1.png';
 import dog2 from '../assets/images/dog-2.png';
 import dog3 from '../assets/images/dog-3.png';
+import { gql, useQuery } from '@apollo/client';
+
+export const GET_USER_INFO = gql`
+  query GetUserInfo {
+    me {
+      email
+      name
+    }
+  }
+`;
+
 
 const max = 25; // 25 letters in the alphabet
 const offset = 97; // letter A's charcode is 97
@@ -24,15 +35,19 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ image, children = 'Space Explorer' }) => {
-  const email = "Seba";
-  const avatar = image || pickAvatarByEmail(email);
+  const { data, loading } = useQuery(GET_USER_INFO)
+  if(loading) return <p></p>;
+
+  const avatar = data.me ? pickAvatarByEmail(data.me.email) : ""
 
   return (
     <Container>
       <Image round={!image} src={avatar} alt="Space dog" />
       <div>
         <h2>{children}</h2>
-        <Subheading>{email}</Subheading>
+        {data && data.me && (
+          <Subheading>Welcome {data.me.name}</Subheading>
+        )}
       </div>
     </Container>
   );

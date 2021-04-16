@@ -2,9 +2,7 @@ const { paginateResults } = require("./utils");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
-const SECRET_KEY = "HOLA";
-
-function generateToken(user) {
+function generateToken(user, SECRET_KEY) {
   return jwt.sign(
     {
       id: user.id,
@@ -16,95 +14,136 @@ function generateToken(user) {
   );
 }
 
-module.exports = {
-  Query: {
-    launches: async (_, { pageSize = 20, after }, { dataSources }) => {
-      const allLaunches = await dataSources.launchAPI.getAllLaunches();
-      allLaunches.reverse();
-      const launches = paginateResults({
-        after,
-        pageSize,
-        results: allLaunches,
-      });
+function formatErrors(error, otherErrors) {
+  const errors = error.errors;
+
+  if (errors) {
+    const parsedErrors = errors.map((error) => {
       return {
-        launches,
-        cursor: launches.length ? launches[launches.length - 1].cursor : null,
-        hasMore: launches.length
-          ? launches[launches.length - 1].cursor !==
-            allLaunches[allLaunches.length - 1].cursor
-          : false,
+        path: error.path,
+        message: error.message,
       };
+    });
+    return otherErrors.concat(parsedErrors);
+  } else {
+    return otherErrors;
+  }
+}
+
+module.exports = {
+  Query: 
+  {
+    launches: 
+    // isAuthenticatedResolver.createResolver(
+      async (_, { pageSize = 20, after }, { dataSources, userToken, SECRET_KEY }) => {
+        if(!userToken) return null;
+        const allLaunches = await dataSources.launchAPI.getAllLaunches();
+        allLaunches.reverse();
+        const launches = paginateResults({
+          after,
+          pageSize,
+          results: allLaunches,
+        });
+        return {
+          launches,
+          user: userToken,
+          cursor: launches.length ? launches[launches.length - 1].cursor : null,
+          hasMore: launches.length
+            ? launches[launches.length - 1].cursor !==
+              allLaunches[allLaunches.length - 1].cursor
+            : false,
+        };
+      }
+    // )
+    ,
+
+    launch: (_, { id }, { dataSources, userToken }) => {
+      if(!userToken) return null;
+      return dataSources.launchAPI.getLaunchById({ launchId: id })
     },
-    launch: (_, { id }, { dataSources }) =>
-      dataSources.launchAPI.getLaunchById({ launchId: id }),
-    me: (_, { email }, { dataSources }) => {
-      dataSources.userAPI.findUser(email);
-    },
-    meById: async (_, { id }, { dataSources }) => {
-      const user = await dataSources.userAPI.findUserById(id);
-      return user
+    me: async(_, __, { userToken }) => {
+      if(!userToken) return null;
+
+      return userToken;
     },
   },
   Mutation: {
-    login: async (_, { email, password }, { dataSources }) => {
-      const user = await dataSources.userAPI.findUser(email);
+    login: async (_, { email, password }, { dataSources, SECRET_KEY }) => {
+      const otherErrors = [];
+      try {
+        const user = await dataSources.userAPI.findUser(email);
+        if (!user) {
+          otherErrors.push({
+            path: "email",
+            message: "The email doen't exist",
+          });
+        }
+        const passwordMatch = await bcrypt.compare(
+          password,
+          user.dataValues.password
+        );
 
-      if (!user) {
-        throw new Error("Email doesn't exist");
+        if (!passwordMatch) {
+          otherErrors.push({
+            path: "password",
+            message: "Password incorrect",
+          });
+        }
+
+        if (otherErrors.length) {
+          throw otherErrors;
+        }
+
+        const token = generateToken(user, SECRET_KEY);
+
+        const finalUser = {
+          ...user.dataValues,
+          token,
+        };
+        return {
+          success: finalUser && finalUser.id,
+          token: token,
+          errors: [],
+        };
+      } catch (error) {
+        return {
+          success: false,
+          errors: formatErrors(error, otherErrors),
+        };
       }
-
-      const passwordMatch = await bcrypt.compare(
-        password,
-        user.dataValues.password
-      );
-
-      if (!passwordMatch) {
-        throw new Error("Password incorrect");
-      }
-
-      const token = generateToken(user);
-
-      const finalUser = {
-        ...user.dataValues,
-        token,
-      };
-
-      return finalUser;
     },
-    register: async (
-      _,
-      { registerInput: { name, email, password } },
-      { dataSources }
-    ) => {
-      const didEmailExist = await dataSources.userAPI.findUser(email);
-
-      if (didEmailExist) {
-        throw new Error("The email was taken");
+    createUser: async (_, { email, password, name }, { dataSources }) => {
+      const otherErrors = [];
+      try {
+        if (password.length < 4 || password.length > 16) {
+          otherErrors.push({
+            path: "password",
+            message: "Long invalid has to be between 4 and 16 characters",
+          });
+        }
+        const hashedPassword = await bcrypt.hash(password, 12);
+        const user = await dataSources.userAPI.createUser({
+          email,
+          password: hashedPassword,
+          name,
+        });
+        if (otherErrors.length) {
+          throw otherErrors;
+        }
+        return {
+          success: user && user.id,
+          errors: [],
+        };
+      } catch (error) {
+        return {
+          success: false,
+          errors: formatErrors(error, otherErrors),
+        };
       }
-
-      const hashedPassword = await bcrypt.hash(password, 12);
-
-      const token = generateToken({
-        email,
-        name,
-        password: hashedPassword,
-      });
-
-      console.log("token", token);
-
-      const newUser = await dataSources.userAPI.createUser({
-        email,
-        name,
-        token,
-        password: hashedPassword,
-      });
-
-      const completedUserCreated = { ...newUser };
-
-      return completedUserCreated;
     },
-    bookTrips: async (_, { launchIds }, { dataSources }) => {
-      const results = await dataSources.userAPI.bookTrips({ launchIds });
+    bookTrips: async (_, { launchIds }, { dataSources, userToken }) => {
+      console.log("BOOKSSSS", userToken)
+      const results = await dataSources.userAPI.bookTrips({ launchIds }, userToken);
       const launches = await dataSources.launchAPI.getLaunchesByIds({
         launchIds,
       });

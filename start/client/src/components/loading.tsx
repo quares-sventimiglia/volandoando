@@ -11,8 +11,12 @@ const spin = keyframes`
 `;
 
 const Loading = styled(Logo)(size(64), {
-  display: 'block',
-  margin: 'auto',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  height: '100vh',
+  width: '100%',
+  // margin: 'auto',
   fill: colors.grey,
   path: {
     transformOrigin: 'center',

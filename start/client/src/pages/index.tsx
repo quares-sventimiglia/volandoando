@@ -4,22 +4,22 @@ import { Router } from '@reach/router';
 import Launch from './launch';
 import Launches from './launches';
 import Cart from './cart';
-import Profile from './profile';
 import Registration from './registation'
-import { Footer, PageContainer } from '../components';
+import Login from './login';
+import { PageContainer } from '../components';
 
-export default function Pages() {
+export default function Pages({client} : any) {
   return (
     <Fragment>
       <PageContainer>
         <Router primary={false} component={Fragment}>
-          <Launches path="/" />
+          <Launches path="/"/>
           <Launch path="launch/:launchId" />
           <Cart path="cart" />
-          <Profile path="profile" />
+          <Registration path="registration" />
+          <Login path="login" />
         </Router>
       </PageContainer>
-      <Footer />
     </Fragment>
   );
 }

@@ -26,9 +26,7 @@ class UserAPI extends DataSource {
   }
 
   async findUserById( id ) {
-    console.log("TOKEEEN", id)
     const user = await this.store.users.findOne({ where: {id} });
-    console.log("USEER", user)
     return user ? user.dataValues : null
   }
 
@@ -38,7 +36,7 @@ class UserAPI extends DataSource {
   }
 
   async bookTrips({ launchIds }) {
-    const userId = this.context.user.id;
+    const userId = 11;
     if (!userId) return;
 
     let results = [];
@@ -52,7 +50,8 @@ class UserAPI extends DataSource {
   }
 
   async bookTrip({ launchId }) {
-    const userId = this.context.user.id;
+    console.log("this", this.context)
+    const userId = this.context.userToken.id;
     const res = await this.store.trips.findOrCreate({
       where: { userId, launchId },
     });
@@ -60,12 +59,12 @@ class UserAPI extends DataSource {
   }
 
   async cancelTrip({ launchId }) {
-    const userId = this.context.user.id;
+    const userId = this.context.userToken.id;
     return !!this.store.trips.destroy({ where: { userId, launchId } });
   }
 
   async getLaunchIdsByUser() {
-    const userId = this.context.user.id;
+    const userId = this.context.userToken.id;
     const found = await this.store.trips.findAll({
       where: { userId },
     });
@@ -76,7 +75,7 @@ class UserAPI extends DataSource {
 
   async isBookedOnLaunch({ launchId }) {
     if (!this.context || !this.context.user) return false;
-    const userId = this.context.user.id;
+    const userId = this.context.userToken.id;
     const found = await this.store.trips.findAll({
       where: { userId, launchId },
     });

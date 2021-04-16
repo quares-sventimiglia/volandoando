@@ -48,9 +48,30 @@ module.exports.createStore = () => {
     },
     createdAt: SQL.DATE,
     updatedAt: SQL.DATE,
-    name: SQL.STRING,
-    email: SQL.STRING,
-    token: SQL.STRING,
+    name: {
+      type: SQL.STRING,
+      validate: {
+        isAlphanumeric:{
+          msg: "Invalid format, has to be alphanumeric"
+        },
+        len: {
+          args:[3,20],
+          msg: "Long invalid has to be between 3 and 20 characters"
+        }
+      }
+    },
+    email: {
+      type: SQL.STRING,
+      validate: {
+        isEmail: {
+          msg: "Invalid format"
+        },
+        len: {
+          args:[6,35],
+          msg: "Long invalid has to be between 6 and 35 characters"
+        }
+      }
+    },
     password: SQL.STRING,
   });
 

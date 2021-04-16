@@ -1,34 +1,28 @@
-import React, { useState } from "react";
+import React from "react";
 import { gql, useMutation } from "@apollo/client";
 import RegistrationForm from "../components/registration-form";
-import LoadingRegistration from "../components/loading-registration";
-import RegistrationCompleted from "../components/registration-completed";
 
 import { RouteComponentProps } from "@reach/router";
 
 export const REGISTER_USER = gql`
-  mutation register($email: String!, $password: String!, $name: String!) {
-    register(
-      registerInput: { name: $name, email: $email, password: $password }
-    ) {
-      id
-      email
-      name
-      token
+  mutation CreateUser($email: String!, $password: String!, $name: String!) {
+    createUser(name: $name, email: $email, password: $password) {
+      success
+      errors {
+        message
+        path
+      }
     }
   }
 `;
 
 interface RegistrationProps extends RouteComponentProps {}
 
-const Registration: React.FC<RegistrationProps> = () => {
-  const [register, { loading, error, called }] = useMutation(REGISTER_USER);
-  console.log("LOADING", error);
+const Registration: React.FC<RegistrationProps> = () => {  
+  const [createUser, { loading }] = useMutation(REGISTER_USER, {
+  });
 
-  if (called && loading) return <LoadingRegistration />;
-  if (!called) return <RegistrationForm register={register} loading={loading} />;
-
-  return <RegistrationCompleted/>;
+  return <RegistrationForm createUser={createUser} loading={loading} />;
 };
 
 export default Registration;

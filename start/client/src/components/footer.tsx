@@ -1,14 +1,22 @@
-import React from 'react';
-import styled from 'react-emotion';
+import React from "react";
+import { useApolloClient } from "@apollo/client";
+import styled from "react-emotion";
 
-import MenuItem from './menu-item';
-import LogoutButton from '../containers/logout-button';
-import { ReactComponent as HomeIcon } from '../assets/icons/home.svg';
-import { ReactComponent as CartIcon } from '../assets/icons/cart.svg';
-import { ReactComponent as ProfileIcon } from '../assets/icons/profile.svg';
-import { colors, unit } from '../styles';
+import MenuItem from "./menu-item";
+import { ReactComponent as HomeIcon } from "../assets/icons/home.svg";
+import { ReactComponent as CartIcon } from "../assets/icons/cart.svg";
+import { ReactComponent as ExitIcon } from "../assets/icons/exit.svg";
+import { colors, unit } from "../styles";
 
-export default function Footer() {
+
+export default function Footer(props: any) {
+  
+  const client = useApolloClient();
+  
+  const signOut = () => {
+    localStorage.removeItem("x-token");
+    client.clearStore().then();
+  };
   return (
     <Container>
       <InnerContainer>
@@ -20,11 +28,15 @@ export default function Footer() {
           <CartIcon />
           Cart
         </MenuItem>
-        <MenuItem to="/profile">
-          <ProfileIcon />
-          Profile
+        <MenuItem
+          onClick={async () => {
+            signOut();
+          }}
+          to="/login"
+        >
+          <ExitIcon />
+          Logout
         </MenuItem>
-        <LogoutButton />
       </InnerContainer>
     </Container>
   );
@@ -34,19 +46,19 @@ export default function Footer() {
  * STYLED COMPONENTS USED IN THIS FILE ARE BELOW HERE
  */
 
-const Container = styled('footer')({
+const Container = styled("footer")({
   flexShrink: 0,
-  marginTop: 'auto',
-  backgroundColor: 'white',
+  marginTop: "auto",
+  backgroundColor: "white",
   color: colors.textSecondary,
-  position: 'sticky',
+  position: "sticky",
   bottom: 0,
 });
 
-const InnerContainer = styled('div')({
-  display: 'flex',
-  alignItems: 'center',
+const InnerContainer = styled("div")({
+  display: "flex",
+  alignItems: "center",
   maxWidth: 460,
   padding: unit * 2.5,
-  margin: '0 auto',
+  margin: "0 auto",
 });

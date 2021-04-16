@@ -1,20 +1,20 @@
 import React from "react";
 import styled from "react-emotion";
+import { Button } from "semantic-ui-react";
 
-import Button from "./button";
 import galaxy from "../assets/images/galaxy.jpg";
 import { colors, unit } from "../styles";
 import { Link } from "@reach/router";
-import { NONAME } from "dns";
 
 const RegistrationCompleted = () => {
-
   return (
     <Container>
-      <Heading>Completed</Heading>
+      <Heading>Registration Completed</Heading>
       <StyledForm>
-        <Link to="/">
-          <Button>Go To Login</Button>
+        <Link to="/login">
+          <Button fluid color="purple" size="big">
+            Go To Login
+          </Button>
         </Link>
       </StyledForm>
     </Container>
@@ -38,7 +38,7 @@ const Container = styled("div")({
   backgroundImage: `url(${galaxy})`,
   backgroundSize: "cover",
   backgroundPosition: "center",
-  height: "100vh"
+  height: "100vh",
 });
 
 const Heading = styled("h1")({
@@ -53,7 +53,7 @@ const StyledForm = styled("form")({
   boxShadow: "6px 6px 1px rgba(0, 0, 0, 0.25)",
   color: colors.text,
   backgroundColor: "white",
-  "a": {
-    textDecoration: "none"
-  }
+  a: {
+    textDecoration: "none",
+  },
 });
