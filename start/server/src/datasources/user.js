@@ -50,7 +50,7 @@ class UserAPI extends DataSource {
   }
 
   async bookTrip({ launchId }) {
-    console.log("this", this.context)
+
     const userId = this.context.userToken.id;
     const res = await this.store.trips.findOrCreate({
       where: { userId, launchId },
