@@ -56,7 +56,7 @@ const Launch: React.FC<LaunchProps> = ({ launchId }) => {
 export default Launch;
 
 const Container = styled(`div`)({
-  width: '50%',
+  width: '100%',
   height: '100vh',
   margin: 'auto',
   display: 'flex',

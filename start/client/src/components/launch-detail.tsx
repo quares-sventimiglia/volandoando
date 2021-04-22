@@ -10,10 +10,14 @@ const LaunchDetail: React.FC<any> = ({ id, site, rocket }: any) => (
       backgroundImage: getBackgroundImage(id as string),
     }}
   >
-    <h3>
+    <h3 style={{
+      fontSize: '7rem'
+    }}>
       {rocket && rocket.name} ({rocket && rocket.type})
     </h3>
-    <h5>{site}</h5>
+    <h5 style={{
+      fontSize: '2rem'
+    }}>{site}</h5>
   </Card>
 );
 
@@ -22,7 +26,7 @@ const LaunchDetail: React.FC<any> = ({ id, site, rocket }: any) => (
  */
 
 const Card = styled('div')(cardClassName, {
-  height: 365,
+  height: '80%',
   marginBottom: unit * 4,
 });
 

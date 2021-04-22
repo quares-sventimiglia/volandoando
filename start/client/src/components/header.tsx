@@ -1,12 +1,12 @@
-import React from 'react';
-import styled from 'react-emotion';
-import { size } from 'polished';
+import React from "react";
+import styled from "react-emotion";
+import { size } from "polished";
 
-import { unit, colors } from '../styles';
-import dog1 from '../assets/images/dog-1.png';
-import dog2 from '../assets/images/dog-2.png';
-import dog3 from '../assets/images/dog-3.png';
-import { gql, useQuery } from '@apollo/client';
+import { unit, colors } from "../styles";
+import dog1 from "../assets/images/dog-1.png";
+import dog2 from "../assets/images/dog-2.png";
+import dog3 from "../assets/images/dog-3.png";
+import { gql, useQuery } from "@apollo/client";
 
 export const GET_USER_INFO = gql`
   query GetUserInfo {
@@ -16,7 +16,6 @@ export const GET_USER_INFO = gql`
     }
   }
 `;
-
 
 const max = 25; // 25 letters in the alphabet
 const offset = 97; // letter A's charcode is 97
@@ -34,24 +33,31 @@ interface HeaderProps {
   children?: any;
 }
 
-const Header: React.FC<HeaderProps> = ({ image, children = 'Space Explorer' }) => {
-  const { data, loading } = useQuery(GET_USER_INFO)
-  if(loading) return <p></p>;
+const Header: React.FC<HeaderProps> = ({
+  image,
+  children = "Space Explorer",
+}) => {
+  const { data, loading } = useQuery(GET_USER_INFO);
+  if (loading) return <p></p>;
 
-  const avatar = data.me ? pickAvatarByEmail(data.me.email) : ""
+  const avatar = data.me ? pickAvatarByEmail(data.me.email) : "";
 
   return (
     <Container>
-      <Image round={!image} src={avatar} alt="Space dog" />
+      <Image round={!image} src={image || avatar} alt="Space dog" />
       <div>
-        <h2>{children}</h2>
-        {data && data.me && (
-          <Subheading>Welcome {data.me.name}</Subheading>
-        )}
+        <h2
+          style={{
+            fontSize: "5rem",
+          }}
+        >
+          {children}
+        </h2>
+        {data && data.me && <Subheading>Welcome {data.me.name}</Subheading>}
       </div>
     </Container>
   );
-}
+};
 
 export default Header;
 
@@ -59,18 +65,20 @@ export default Header;
  * STYLED COMPONENTS USED IN THIS FILE ARE BELOW HERE
  */
 
-const Container = styled('div')({
-  display: 'flex',
-  alignItems: 'center',
+const Container = styled("div")({
+  display: "flex",
+  alignItems: "center",
   marginBottom: unit * 4.5,
+  marginTop: unit * 4.5,
 });
 
-const Image = styled('img')(size(134), (props: { round: boolean }) => ({
+const Image = styled("img")(size(134), (props: { round: boolean }) => ({
   marginRight: unit * 2.5,
-  borderRadius: props.round ? '50%' : '0%',
+  borderRadius: props.round ? "50%" : "0%",
 }));
 
-const Subheading = styled('h5')({
+const Subheading = styled("h5")({
   marginTop: unit / 2,
   color: colors.textSecondary,
+  fontSize: '3rem'
 });
