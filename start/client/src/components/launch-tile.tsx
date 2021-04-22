@@ -44,8 +44,13 @@ const StyledLink = styled(Link)(cardClassName, {
   display: 'block',
   height: 193,
   marginTop: padding,
+  transition: 'opacity 0.2s',
   textDecoration: 'none',
   ':not(:last-child)': {
     marginBottom: padding * 2,
   },
+  ':hover': {
+    color: 'white',
+    opacity: 0.5
+  }
 });

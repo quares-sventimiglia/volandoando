@@ -105,5 +105,4 @@ const Container = styled('div')({
   flexGrow: 1,
   width: '50%',
   margin: '0 auto',
-  height: '100vh'
 });
