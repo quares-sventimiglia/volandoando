@@ -14,8 +14,10 @@ export default function Footer(props: any) {
   const client = useApolloClient();
   
   const signOut = () => {
-    localStorage.removeItem("x-token");
-    client.clearStore().then();
+    client.clearStore().then(
+      () => localStorage.clear()
+    );
+    
   };
   return (
     <Container>
