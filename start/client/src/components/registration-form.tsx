@@ -119,6 +119,7 @@ const Container = styled("div")({
 
 const Heading = styled("h1")({
   margin: `${unit * 3}px 0 ${unit * 6}px`,
+  marginTop: "2rem !important"
 });
 
 const StyledForm = styled("form")({

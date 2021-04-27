@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React from "react";
 import styled, { css } from "react-emotion";
 import { Link } from "@reach/router";
 
@@ -67,7 +67,6 @@ export default ({ launch, fromCart }: any) => {
 
 export const cardClassName = css({
   padding: `${unit * 4}px ${unit * 5}px`,
-  borderRadius: 7,
   color: "white",
   backgroundSize: "cover",
   backgroundPosition: "center",

@@ -1,54 +1,43 @@
-import React from 'react';
-import { gql, useMutation } from '@apollo/client';
+import React from "react";
+import { gql, useMutation } from "@apollo/client";
+import { Button } from "semantic-ui-react";
 
-import Button from '../components/button';
-import { cartItemsVar } from '../cache';
-import * as GetCartItemsTypes from '../pages/__generated__/GetCartItems';
-import * as BookTripsTypes from './__generated__/BookTrips';
-import { Loading } from '../components';
+import { Loading } from "../components";
+import { GET_ALL_LAUNCHES } from "./action-button";
 
-export const BOOK_TRIPS = gql`
-  mutation BookTrips($launchIds: [ID]!) {
-    bookTrips(launchIds: $launchIds) {
-      success
+export const BOOK_ALL = gql`
+  mutation BookAll {
+    bookAll {
       message
-      launches {
-        id
-        isBooked
-      }
+      success
     }
   }
 `;
 
-interface BookTripsProps extends GetCartItemsTypes.GetCartItems {}
+const BookTrips: React.FC = () => {
+  const [bookAll, { data, loading }] = useMutation(BOOK_ALL, {
+    refetchQueries: [{ query: GET_ALL_LAUNCHES }],
+  });
 
-const BookTrips: React.FC<BookTripsProps> = ({ cartItems }) => {
-  const [bookTrips, { data, loading }] = useMutation<
-    BookTripsTypes.BookTrips,
-    BookTripsTypes.BookTripsVariables
-  >
-(
-    BOOK_TRIPS,
-    {
-      variables: { launchIds: cartItems },
-    }
+  if (loading) return <Loading />;
+
+  return data && data.bookTrips && !data.bookTrips.success ? (
+    <p data-testid="message">{data.bookTrips.message}</p>
+  ) : (
+    <Button
+      onClick={async () => {
+        await bookAll();
+      }}
+      data-testid="book-button"
+      color="purple"
+      size="big"
+      style={{
+        marginTop: "1em"
+      }}
+    >
+      Book All
+    </Button>
   );
-
-  if(loading) return <Loading />
-
-  return data && data.bookTrips && !data.bookTrips.success
-    ? <p data-testid="message">{data.bookTrips.message}</p>
-    : (
-      <Button
-        onClick={async () => {
-          await bookTrips();
-          cartItemsVar([]);
-        }}
-        data-testid="book-button"
-      >
-        Book All
-      </Button>
-    );
-}
+};
 
 export default BookTrips;

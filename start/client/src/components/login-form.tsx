@@ -5,7 +5,7 @@ import { Button, Message } from "semantic-ui-react";
 import space from "../assets/images/space.jpg";
 import { colors, unit } from "../styles";
 import MenuItem from "./menu-item";
-import { navigate } from "@reach/router"
+import { navigate } from "@reach/router";
 
 const LoginForm = ({ login, loading, client }: any) => {
   const [values, setValues] = useState({
@@ -14,8 +14,6 @@ const LoginForm = ({ login, loading, client }: any) => {
   });
 
   const [errors, setErrors] = useState<any>([]);
-  // const [success, setSuccess] = useState<boolean>(false)
-
   const hasInputValues = (): boolean => {
     return Boolean(values.email && values.password);
   };
@@ -42,8 +40,8 @@ const LoginForm = ({ login, loading, client }: any) => {
       const { errors, success, token } = data.login;
       setErrors(errors);
       if (success) {
-        localStorage.setItem("x-token", token)
-        await navigate('/')
+        localStorage.setItem("x-token", token);
+        await navigate("/");
       }
     } catch (e) {
       console.log("ERRRROOR", e);
@@ -119,6 +117,7 @@ const Container = styled("div")({
 
 const Heading = styled("h1")({
   margin: `${unit * 3}px 0 ${unit * 6}px`,
+  marginTop: "2rem !important"
 });
 
 const StyledForm = styled("form")({
