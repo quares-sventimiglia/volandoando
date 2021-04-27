@@ -5,6 +5,8 @@ import { Footer, Header, Loading } from "../components";
 import { CartItem, BookTrips } from "../containers";
 import { RouteComponentProps } from "@reach/router";
 import styled from "react-emotion";
+import { GET_USER_INFO } from "./launches";
+import NotLoggedIn from "../components/not-logged-in";
 
 export const GET_ALL_LAUNCHES = gql`
   query GetAllLaunches {
@@ -27,7 +29,14 @@ export const GET_ALL_LAUNCHES = gql`
 interface cartProps extends RouteComponentProps {}
 
 const Cart: React.FC<cartProps> = () => {
-  const {data: launchInfo, loading, error} = useQuery(GET_ALL_LAUNCHES,{fetchPolicy: "network-only"});
+  const { data: userData } = useQuery(GET_USER_INFO);
+  const { data: launchInfo, loading, error } = useQuery(GET_ALL_LAUNCHES, {
+    fetchPolicy: "network-only",
+  });
+
+  console.log("DATA", userData);
+
+  if (userData && !userData.me) return <NotLoggedIn />;
 
   if (loading) return <Loading />;
   if (error) return <p>ERROR: {error.message}</p>;
@@ -40,9 +49,9 @@ const Cart: React.FC<cartProps> = () => {
       ) : (
         <Container>
           {launchInfo?.getAllLaunches.map((launchId: any) => (
-            <CartItem key={launchId.id} launchId={launchId.id} fromCart/>
+            <CartItem key={launchId.id} launchId={launchId.id} fromCart />
           ))}
-          <BookTrips cartItems={launchInfo?.getAllLaunches || []} />
+          <BookTrips />
         </Container>
       )}
       <Footer />
@@ -58,4 +67,5 @@ const Container = styled("div")({
   flexGrow: 1,
   width: "75%",
   margin: "0 auto",
+  height: "100vh",
 });
