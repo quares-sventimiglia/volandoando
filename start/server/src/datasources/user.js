@@ -101,6 +101,11 @@ class UserAPI extends DataSource {
     const wasRemoved = await this.store.trips.destroy({ where: { userId, launchId } });
     return wasRemoved
   }
+
+  async removeAllLaunches ({userId}) {
+    const wasRemoved = await this.store.trips.destroy({ where: { userId } });
+    return wasRemoved
+  }
 }
 
 module.exports = UserAPI;
