@@ -1,13 +1,14 @@
 import React from "react";
 import { gql, useQuery } from "@apollo/client";
 
-import { LAUNCH_TILE_DATA } from "./launches";
+import { GET_USER_INFO, LAUNCH_TILE_DATA } from "./launches";
 import { Loading, Header, LaunchDetail, Footer } from "../components";
 import { ActionButton } from "../containers";
 import { RouteComponentProps } from "@reach/router";
 import styled from 'react-emotion'
 
 import * as LaunchDetailsTypes from "./__generated__/LaunchDetails";
+import NotLoggedIn from "../components/not-logged-in";
 
 export const GET_LAUNCH_DETAILS = gql`
   query LaunchDetails($launchId: ID!) {
@@ -27,11 +28,13 @@ interface LaunchProps extends RouteComponentProps {
 }
 
 const Launch: React.FC<LaunchProps> = ({ launchId }) => {
+  const { data: userData } = useQuery(GET_USER_INFO);
   const { data, loading, error } = useQuery<
-    LaunchDetailsTypes.LaunchDetails,
-    LaunchDetailsTypes.LaunchDetailsVariables
+  LaunchDetailsTypes.LaunchDetails,
+  LaunchDetailsTypes.LaunchDetailsVariables
   >(GET_LAUNCH_DETAILS, { variables: { launchId } });
-
+  
+  if (userData && !userData.me) return <NotLoggedIn />;
   if (loading) return <Loading />;
   if (error) return <p>ERROR: {error.message}</p>;
   if (!data) return <p>Not found</p>;
