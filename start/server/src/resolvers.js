@@ -32,31 +32,29 @@ function formatErrors(error, otherErrors) {
 
 module.exports = {
   Query: {
-    launches:
-      // isAuthenticatedResolver.createResolver(
-      async (
-        _,
-        { pageSize = 20, after },
-        { dataSources, userToken, SECRET_KEY }
-      ) => {
-        if (!userToken) return null;
-        const allLaunches = await dataSources.launchAPI.getAllLaunches();
-        allLaunches.reverse();
-        const launches = paginateResults({
-          after,
-          pageSize,
-          results: allLaunches,
-        });
-        return {
-          launches,
-          user: userToken,
-          cursor: launches.length ? launches[launches.length - 1].cursor : null,
-          hasMore: launches.length
-            ? launches[launches.length - 1].cursor !==
-              allLaunches[allLaunches.length - 1].cursor
-            : false,
-        };
-      },
+    launches: async (
+      _,
+      { pageSize = 20, after },
+      { dataSources, userToken }
+    ) => {
+      if (!userToken) return null;
+      const allLaunches = await dataSources.launchAPI.getAllLaunches();
+      allLaunches.reverse();
+      const launches = paginateResults({
+        after,
+        pageSize,
+        results: allLaunches,
+      });
+      return {
+        launches,
+        user: userToken,
+        cursor: launches.length ? launches[launches.length - 1].cursor : null,
+        hasMore: launches.length
+          ? launches[launches.length - 1].cursor !==
+            allLaunches[allLaunches.length - 1].cursor
+          : false,
+      };
+    },
     // )
     launch: (_, { id }, { dataSources, userToken }) => {
       if (!userToken) return null;
@@ -149,42 +147,6 @@ module.exports = {
         };
       }
     },
-    bookTrips: async (_, { launchIds }, { dataSources, userToken }) => {
-      const results = await dataSources.userAPI.bookTrips(
-        { launchIds },
-        userToken
-      );
-      const launches = await dataSources.launchAPI.getLaunchesByIds({
-        launchIds,
-      });
-
-      return {
-        success: results && results.length === launchIds.length,
-        message:
-          results.length === launchIds.length
-            ? "trips booked successfully"
-            : `the following launches couldn't be booked: ${launchIds.filter(
-                (id) => !results.includes(id)
-              )}`,
-        launches,
-      };
-    },
-    cancelTrip: async (_, { launchId }, { dataSources }) => {
-      const result = await dataSources.userAPI.cancelTrip({ launchId });
-
-      if (!result)
-        return {
-          success: false,
-          message: "failed to cancel trip",
-        };
-
-      const launch = await dataSources.launchAPI.getLaunchById({ launchId });
-      return {
-        success: true,
-        message: "trip cancelled",
-        launches: [launch],
-      };
-    },
     addToCart: async (_, { launchId }, { dataSources, userToken }) => {
       if (!userToken) return null;
 
@@ -192,33 +154,50 @@ module.exports = {
         launchId,
         userId: userToken.id,
       });
-      
-      if(!isLaunchAdded) {
+
+      if (!isLaunchAdded) {
         return {
           success: false,
-          message: "failed to add trip, you can't add the same trip"
-        }
+          message: "failed to add trip, you can't add the same trip",
+        };
       }
       return {
         success: true,
-        message: "trip added"
+        message: "trip added",
       };
     },
-    removeToCart: async (_, { launchId }, {dataSources, userToken}) => {
+    removeToCart: async (_, { launchId }, { dataSources, userToken }) => {
       const wasDeleted = await dataSources.userAPI.removeLaunch({
         userId: userToken.id,
         launchId,
-      })
+      });
 
-      if(!wasDeleted) return {
-        success: false,
-        message: "launch doesn't exist"
-      }
+      if (!wasDeleted)
+        return {
+          success: false,
+          message: "launch doesn't exist",
+        };
 
       return {
         success: true,
-        message: "launch deleted"
-      }
+        message: "launch deleted",
+      };
+    },
+    bookAll: async (_, __, { dataSources, userToken }) => {
+      const wasDeleted = await dataSources.userAPI.removeAllLaunches({
+        userId: userToken.id,
+      });
+
+      if (!wasDeleted)
+        return {
+          success: false,
+          message: "launch doesn't exist",
+        };
+
+      return {
+        success: true,
+        message: "book all",
+      };
     },
   },
   Mission: {
