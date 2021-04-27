@@ -1,10 +1,11 @@
 import * as GetLaunchListTypes from "./__generated__/GetLaunchList";
 import React, { useState } from "react";
-import { RouteComponentProps, Link } from "@reach/router";
+import { RouteComponentProps } from "@reach/router";
 import { gql, useQuery } from "@apollo/client";
 import { LaunchTile, Header, Loading, Footer } from "../components";
 import { Button } from "semantic-ui-react";
-import styled from 'react-emotion';
+import NotLoggedIn from "../components/not-logged-in";
+import styled from "react-emotion";
 
 export const LAUNCH_TILE_DATA = gql`
   fragment LaunchTile on Launch {
@@ -65,19 +66,12 @@ const Launches: React.FC<LaunchesProps> = () => {
   };
 
   if (loading) return <Loading />;
-  if (error)
-    return (
-      <Link to="/login">
-        <Button fluid color="purple" size="big">
-          You are not logged in, please click me and login.
-        </Button>
-      </Link>
-    );
+  if (error) return <NotLoggedIn />;
   if (!data) return <p>Not Fount</p>;
 
   return (
     <Container>
-      <Header/>
+      <Header />
       {data.launches &&
         data.launches.launches &&
         data.launches.launches.map((launch: any) => (
@@ -99,10 +93,10 @@ const Launches: React.FC<LaunchesProps> = () => {
 
 export default Launches;
 
-const Container = styled('div')({
-  display: 'flex',
-  flexDirection: 'column',
+const Container = styled("div")({
+  display: "flex",
+  flexDirection: "column",
   flexGrow: 1,
-  width: '50%',
-  margin: '0 auto',
+  width: "50%",
+  margin: "0 auto",
 });
