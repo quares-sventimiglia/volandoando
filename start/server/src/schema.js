@@ -5,6 +5,7 @@ const typeDefs = gql`
     launches(pageSize: Int, after: String): LaunchConnection!
     launch(id: ID!): Launch
     me: User
+    getAllLaunches: [Launch]
   }
 
   type LaunchConnection {
@@ -30,6 +31,8 @@ const typeDefs = gql`
     cancelTrip(launchId: ID!): TripUpdateResponse!
     login(email: String!, password: String!): Response!
     createUser(email: String!, password: String!, name: String!): Response!
+    addToCart(launchId: ID!): TripUpdateResponse
+    removeToCart(launchId: ID!): TripUpdateResponse!
   }
 
   input RegisterInput {

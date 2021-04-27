@@ -31,12 +31,15 @@ function formatErrors(error, otherErrors) {
 }
 
 module.exports = {
-  Query: 
-  {
-    launches: 
-    // isAuthenticatedResolver.createResolver(
-      async (_, { pageSize = 20, after }, { dataSources, userToken, SECRET_KEY }) => {
-        if(!userToken) return null;
+  Query: {
+    launches:
+      // isAuthenticatedResolver.createResolver(
+      async (
+        _,
+        { pageSize = 20, after },
+        { dataSources, userToken, SECRET_KEY }
+      ) => {
+        if (!userToken) return null;
         const allLaunches = await dataSources.launchAPI.getAllLaunches();
         allLaunches.reverse();
         const launches = paginateResults({
@@ -53,18 +56,23 @@ module.exports = {
               allLaunches[allLaunches.length - 1].cursor
             : false,
         };
-      }
+      },
     // )
-    ,
-
     launch: (_, { id }, { dataSources, userToken }) => {
-      if(!userToken) return null;
-      return dataSources.launchAPI.getLaunchById({ launchId: id })
+      if (!userToken) return null;
+      return dataSources.launchAPI.getLaunchById({ launchId: id });
     },
-    me: async(_, __, { userToken }) => {
-      if(!userToken) return null;
+    me: async (_, __, { userToken }) => {
+      if (!userToken) return null;
 
       return userToken;
+    },
+    getAllLaunches: async (_, __, { dataSources, userToken }) => {
+      const launchesId = await dataSources.userAPI.getLaunchesId(userToken.id);
+      const launches = await dataSources.launchAPI.getLaunchesByIds({
+        launchIds: launchesId,
+      });
+      return launches;
     },
   },
   Mutation: {
@@ -142,8 +150,10 @@ module.exports = {
       }
     },
     bookTrips: async (_, { launchIds }, { dataSources, userToken }) => {
-      console.log("BOOKSSSS", userToken)
-      const results = await dataSources.userAPI.bookTrips({ launchIds }, userToken);
+      const results = await dataSources.userAPI.bookTrips(
+        { launchIds },
+        userToken
+      );
       const launches = await dataSources.launchAPI.getLaunchesByIds({
         launchIds,
       });
@@ -174,6 +184,41 @@ module.exports = {
         message: "trip cancelled",
         launches: [launch],
       };
+    },
+    addToCart: async (_, { launchId }, { dataSources, userToken }) => {
+      if (!userToken) return null;
+
+      const isLaunchAdded = await dataSources.userAPI.addLaunch({
+        launchId,
+        userId: userToken.id,
+      });
+      
+      if(!isLaunchAdded) {
+        return {
+          success: false,
+          message: "failed to add trip, you can't add the same trip"
+        }
+      }
+      return {
+        success: true,
+        message: "trip added"
+      };
+    },
+    removeToCart: async (_, { launchId }, {dataSources, userToken}) => {
+      const wasDeleted = await dataSources.userAPI.removeLaunch({
+        userId: userToken.id,
+        launchId,
+      })
+
+      if(!wasDeleted) return {
+        success: false,
+        message: "launch doesn't exist"
+      }
+
+      return {
+        success: true,
+        message: "launch deleted"
+      }
     },
   },
   Mission: {

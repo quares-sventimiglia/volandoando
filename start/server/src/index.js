@@ -12,7 +12,6 @@ const store = createStore();
 const SECRET_KEY = "SOY UN SECRETO";
 
 const context = async ({ req: { headers } }) => {
-
   const context = {
     SECRET_KEY,
     userToken: "",
@@ -20,14 +19,16 @@ const context = async ({ req: { headers } }) => {
   try {
     const token = headers.authorization;
     if (token) {
-      context.userToken = await jwt.verify(token, SECRET_KEY);
+      context.userToken = jwt.verify(token, SECRET_KEY);
     }
     return context;
   } catch (e) {
     
   }
+
   return context
 };
+
 
 const server = new ApolloServer({
   typeDefs,

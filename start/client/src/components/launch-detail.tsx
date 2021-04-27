@@ -26,8 +26,15 @@ const LaunchDetail: React.FC<any> = ({ id, site, rocket }: any) => (
  */
 
 const Card = styled('div')(cardClassName, {
-  height: '80%',
-  marginBottom: unit * 4,
+  position: "absolute",
+  width: "100%",
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "center",
+  marginBottom: "0",
+  zIndex: -1
 });
 
 export default LaunchDetail;

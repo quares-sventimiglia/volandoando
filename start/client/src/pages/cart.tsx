@@ -1,53 +1,61 @@
-import React from 'react';
-import { gql, useQuery } from '@apollo/client';
+import React from "react";
+import { gql, useQuery } from "@apollo/client";
 
-import { Footer, Header, Loading } from '../components';
-import { CartItem, BookTrips } from '../containers';
-import { RouteComponentProps } from '@reach/router';
-import { GetCartItems } from './__generated__/GetCartItems';
-import styled from 'react-emotion';
+import { Footer, Header, Loading } from "../components";
+import { CartItem, BookTrips } from "../containers";
+import { RouteComponentProps } from "@reach/router";
+import styled from "react-emotion";
 
-export const GET_CART_ITEMS = gql`
-  query GetCartItems {
-    cartItems @client
+export const GET_ALL_LAUNCHES = gql`
+  query GetAllLaunches {
+    getAllLaunches {
+      id
+      rocket {
+        id
+        name
+        type
+      }
+      site
+      mission {
+        missionPatch
+        name
+      }
+    }
   }
 `;
 
-interface CartProps extends RouteComponentProps {}
+interface cartProps extends RouteComponentProps {}
 
-const Cart: React.FC<CartProps> = () => {
-  const { data, loading, error } = useQuery<GetCartItems>(
-    GET_CART_ITEMS
-  );
+const Cart: React.FC<cartProps> = () => {
+  const {data: launchInfo, loading, error} = useQuery(GET_ALL_LAUNCHES,{fetchPolicy: "network-only"});
 
   if (loading) return <Loading />;
   if (error) return <p>ERROR: {error.message}</p>;
 
   return (
     <Container>
-      <Header/>
-      {data?.cartItems.length === 0 ? (
+      <Header />
+      {launchInfo?.getAllLaunches.length === 0 ? (
         <h3 data-testid="empty-message">No items in your cart</h3>
       ) : (
         <Container>
-          {data?.cartItems.map((launchId: any) => (
-            <CartItem key={launchId} launchId={launchId} />
+          {launchInfo?.getAllLaunches.map((launchId: any) => (
+            <CartItem key={launchId.id} launchId={launchId.id} fromCart/>
           ))}
-          <BookTrips cartItems={data?.cartItems || []} />
+          <BookTrips cartItems={launchInfo?.getAllLaunches || []} />
         </Container>
       )}
       <Footer />
     </Container>
   );
-}
+};
 
 export default Cart;
 
-const Container = styled('div')({
-  display: 'flex',
-  flexDirection: 'column',
+const Container = styled("div")({
+  display: "flex",
+  flexDirection: "column",
   flexGrow: 1,
-  width: '50%',
-  margin: '0 auto',
-  height: '100vh'
+  width: "75%",
+  margin: "0 auto",
 });

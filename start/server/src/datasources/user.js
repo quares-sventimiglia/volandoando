@@ -20,18 +20,18 @@ class UserAPI extends DataSource {
     return users && users[0] ? users[0] : null;
   }
 
-  async findUser( email ) {
-    const user = await this.store.users.findOne({ where: {email} });
-    return user
-  }
-
-  async findUserById( id ) {
-    const user = await this.store.users.findOne({ where: {id} });
-    return user ? user.dataValues : null
+  async findUser(email) {
+    const user = await this.store.users.findOne({ where: { email } });
+    return user;
   }
 
   async createUser({ email, password, name, token }) {
-    const info = await this.store.users.create({ name, email, password, token });
+    const info = await this.store.users.create({
+      name,
+      email,
+      password,
+      token,
+    });
     return info.dataValues;
   }
 
@@ -50,7 +50,6 @@ class UserAPI extends DataSource {
   }
 
   async bookTrip({ launchId }) {
-
     const userId = this.context.userToken.id;
     const res = await this.store.trips.findOrCreate({
       where: { userId, launchId },
@@ -80,6 +79,27 @@ class UserAPI extends DataSource {
       where: { userId, launchId },
     });
     return found && found.length > 0;
+  }
+
+  async addLaunch({ launchId, userId }) {
+    const didUserBookFlight = await this.store.trips.findOne({
+      where: {launchId, userId}
+    })
+    if(didUserBookFlight) return null
+    
+    const res = await this.store.trips.create({ userId, launchId });
+    return res.dataValues
+  }
+
+  async getLaunchesId (userId) {
+    const res = await this.store.trips.findAll({where: {userId}})
+    const launchId = res.map( id => id.dataValues.launchId )
+    return launchId
+  }
+
+  async removeLaunch ({userId, launchId}) {
+    const wasRemoved = await this.store.trips.destroy({ where: { userId, launchId } });
+    return wasRemoved
   }
 }
 
