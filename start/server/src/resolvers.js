@@ -68,10 +68,7 @@ module.exports = {
       return userToken;
     },
     getAllLaunches: async (_, __, { dataSources, userToken }) => {
-      
       const launchesId = await dataSources.userAPI.getLaunchesId(userToken.id);
-      console.log("launches", launchesId);
-      //SI EL USUARIO NO TIENE VUELOS AGREGADOS, VER QUE HACER
       const launches = await dataSources.launchAPI.getLaunchesByIds({
         launchIds: launchesId,
       });
