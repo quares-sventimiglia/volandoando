@@ -1,108 +1,100 @@
-import React from 'react';
-import {
-  gql,
-  useMutation,
-  useReactiveVar,
-  Reference
-} from '@apollo/client';
+import React, { useEffect, useState } from "react";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { Button } from "semantic-ui-react";
 
-import { GET_LAUNCH_DETAILS } from '../pages/launch';
-import Button from '../components/button';
-import { cartItemsVar } from '../cache';
-import * as LaunchDetailTypes from '../pages/__generated__/LaunchDetails';
-
-export { GET_LAUNCH_DETAILS };
-
-export const CANCEL_TRIP = gql`
-  mutation cancel($launchId: ID!) {
-    cancelTrip(launchId: $launchId) {
+export const ADD_TO_CART = gql`
+  mutation AddLaunch($launchId: ID!) {
+    addToCart(launchId: $launchId) {
       success
       message
-      launches {
-        id
-        isBooked
-      }
     }
   }
 `;
 
-interface ActionButtonProps extends Partial<LaunchDetailTypes.LaunchDetails_launch> {}
-
-const CancelTripButton: React.FC<ActionButtonProps> = ({ id }) => {
-  const [mutate, { loading, error }] = useMutation(
-    CANCEL_TRIP,
-    {
-      variables: { launchId: id },
-      update(cache, { data: { cancelTrip } }) {
-        // Update the user's cached list of trips to remove the trip that
-        // was just canceled.
-        const launch = cancelTrip.launches[0];
-        cache.modify({
-          id: cache.identify({
-            __typename: 'User',
-            id: localStorage.getItem('userId'),
-          }),
-          fields: {
-            trips(existingTrips) {
-              const launchRef = cache.writeFragment({
-                data: launch,
-                fragment: gql`
-                  fragment RemoveLaunch on Launch {
-                    id
-                  }
-                `
-              });
-              return existingTrips.filter(
-                (tripRef: Reference) => tripRef === launchRef
-              );
-            }
-          }
-        });
-      }
+export const GET_ALL_LAUNCHES = gql`
+  query GetAllLaunches {
+    getAllLaunches {
+      id
     }
-  );
+  }
+`;
+export const REMOVE_TO_CART = gql`
+  mutation RemoveToCart($launchId: ID!) {
+    removeToCart(launchId: $launchId) {
+      success
+    }
+  }
+`;
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>An error occurred</p>;
+const addLaunchToCart = async (id: any, addLaunch: any) => {
+  try {
+    await addLaunch({
+      variables: {
+        launchId: id,
+      },
+      refetchQueries: [{ query: GET_ALL_LAUNCHES }],
+    });
+  } catch (e) {
+    console.log("ERRRROOR", e);
+  }
+};
+
+export const removeLaunchToCart = async (id: any, removeLaunch: any) => {
+  try {
+    await removeLaunch({
+      variables: {
+        launchId: id,
+      },
+      refetchQueries: [{ query: GET_ALL_LAUNCHES }],
+    });
+  } catch (e) {
+    console.log("ERRRROOR", e);
+  }
+};
+
+interface ActionButtonProps {
+  id?: string;
+}
+
+const ToggleTripButton: React.FC<ActionButtonProps> = ({ id }) => {
+  const [addLaunch] = useMutation(ADD_TO_CART);
+  const [removeLaunch] = useMutation(
+    REMOVE_TO_CART
+  );
+  const { data } = useQuery(GET_ALL_LAUNCHES);
+
+  const [isBooked, setIsBooked] = useState(false);
+
+  useEffect(() => {
+    setIsBooked(
+      Boolean(
+        data &&
+          data.getAllLaunches &&
+          data.getAllLaunches.find((launch: { id: string }) => launch.id === id)
+      )
+    );
+  }, [id, data]);
 
   return (
-    <div>
-      <Button
-        onClick={() => mutate()}
-        data-testid={'action-button'}
-      >
-        Cancel This Trip
-      </Button>
-    </div>
+    <Button
+      onClick={async (e) => isBooked ? await removeLaunchToCart(id, removeLaunch) : await addLaunchToCart(id, addLaunch)}
+      data-testid={"action-button"}
+      color="purple"
+      size="big"
+      style={{
+        position: "absolute",
+        top: "65%",
+        left: "50%",
+        transform: "translate(-50%, 50%)"
+      }}
+    >
+      {isBooked ? "Remove from Cart" : "Add to Cart"}
+    </Button>
   );
 };
 
-const ToggleTripButton: React.FC<ActionButtonProps> = ({ id }) => {
-  const cartItems = useReactiveVar(cartItemsVar);
-  const isInCart = id ? cartItems.includes(id) : false;
-  return (
-    <div>
-      <Button
-        onClick={() => {
-          if (id) {
-            cartItemsVar(
-              isInCart
-                ? cartItems.filter(itemId => itemId !== id)
-                : [...cartItems, id]
-            );
-          }
-        }}
-        data-testid={'action-button'}
-      >
-        {isInCart ? 'Remove from Cart' : 'Add to Cart'}
-      </Button>
-    </div>
-  );
-}
-
-const ActionButton: React.FC<ActionButtonProps> =
-  ({ isBooked, id }) => (
-    isBooked ? <CancelTripButton id={id} /> : <ToggleTripButton id={id} />
-  );
+const ActionButton: React.FC<ActionButtonProps> = ({ id }) => (
+  <ToggleTripButton id={id} />
+);
 
 export default ActionButton;
